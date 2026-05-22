@@ -1,0 +1,1597 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎰 SORTEO INSTAGRAM - Cyberpunk Edition</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <style>
+        /* ============================================
+           RESET & BASE
+           ============================================ */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --neon-cyan: #00f0ff;
+            --neon-magenta: #ff00aa;
+            --neon-purple: #b829dd;
+            --neon-green: #00ff88;
+            --neon-yellow: #ffee00;
+            --neon-orange: #ff6600;
+            --dark-bg: #0a0a0f;
+            --dark-card: #12121a;
+            --dark-border: #1e1e2e;
+            --text-primary: #e0e0e0;
+            --text-secondary: #8888a0;
+            --glass: rgba(18, 18, 26, 0.85);
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ============================================
+           ANIMACIONES
+           ============================================ */
+        @keyframes glowPulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 240, 255, 0.3), 0 0 40px rgba(0, 240, 255, 0.1); }
+            50% { box-shadow: 0 0 30px rgba(0, 240, 255, 0.5), 0 0 60px rgba(0, 240, 255, 0.2); }
+        }
+
+        @keyframes textGlow {
+            0%, 100% { text-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan); }
+            50% { text-shadow: 0 0 20px var(--neon-cyan), 0 0 40px var(--neon-cyan), 0 0 60px var(--neon-magenta); }
+        }
+
+        @keyframes borderGlow {
+            0%, 100% { border-color: var(--neon-cyan); }
+            33% { border-color: var(--neon-magenta); }
+            66% { border-color: var(--neon-purple); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes spinGlow {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes winnerPop {
+            0% { transform: scale(0) rotate(-10deg); opacity: 0; }
+            50% { transform: scale(1.2) rotate(5deg); }
+            70% { transform: scale(0.95) rotate(-2deg); }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes pulseScale {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes numberPop {
+            0% { transform: scale(0.5); opacity: 0; }
+            60% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* ============================================
+           LAYOUT PRINCIPAL
+           ============================================ */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ============================================
+           HEADER
+           ============================================ */
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-magenta), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: textGlow 3s ease-in-out infinite;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+        }
+
+        .header .icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* ============================================
+           TARJETAS / CARDS
+           ============================================ */
+        .card {
+            background: var(--glass);
+            border: 1px solid var(--dark-border);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-magenta), var(--neon-purple));
+            animation: borderGlow 4s linear infinite;
+        }
+
+        .card:hover {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.15);
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--neon-cyan);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* ============================================
+           INPUT DE ARCHIVO
+           ============================================ */
+        .file-input-wrapper {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .file-input-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            min-height: 150px;
+            border: 2px dashed var(--neon-cyan);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(0, 240, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .file-input-label:hover {
+            background: rgba(0, 240, 255, 0.1);
+            border-color: var(--neon-magenta);
+            transform: scale(1.02);
+        }
+
+        .file-input-label.has-file {
+            border-color: var(--neon-green);
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        .file-input-label input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .file-text {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .file-text strong {
+            color: var(--neon-cyan);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        /* ============================================
+           STATS / CONTADORES
+           ============================================ */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-box {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--dark-border);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-box:hover {
+            border-color: var(--neon-cyan);
+            transform: translateY(-3px);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* ============================================
+           SELECTOR DE CANTIDAD DE GANADORES
+           ============================================ */
+        .winner-selector {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            padding: 25px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--dark-border);
+            border-radius: 16px;
+            margin-top: 20px;
+        }
+
+        .winner-selector-label {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-weight: 600;
+        }
+
+        .winner-selector-label span {
+            color: var(--neon-yellow);
+        }
+
+        .winner-buttons-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .winner-number-btn {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            border: 2px solid var(--dark-border);
+            background: rgba(0, 0, 0, 0.4);
+            color: var(--text-secondary);
+            font-size: 1.4rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .winner-number-btn:hover {
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0, 240, 255, 0.2);
+        }
+
+        .winner-number-btn.selected {
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-magenta));
+            border-color: transparent;
+            color: var(--dark-bg);
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.4), 0 0 50px rgba(255, 0, 170, 0.2);
+            transform: scale(1.1);
+            animation: pulseScale 2s ease-in-out infinite;
+        }
+
+        .winner-number-btn.selected:hover {
+            transform: scale(1.15) translateY(-3px);
+        }
+
+        .winner-display {
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--neon-yellow);
+            text-shadow: 0 0 30px rgba(255, 238, 0, 0.5);
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .winner-display .number {
+            font-size: 4rem;
+            line-height: 1;
+        }
+
+        .winner-display .text {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-left: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* ============================================
+           FILTROS
+           ============================================ */
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 10px 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            border: 1px solid var(--dark-border);
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .checkbox-wrapper:hover {
+            border-color: var(--neon-magenta);
+        }
+
+        .checkbox-wrapper input[type="checkbox"] {
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border: 2px solid var(--neon-cyan);
+            border-radius: 6px;
+            background: transparent;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .checkbox-wrapper input[type="checkbox"]:checked {
+            background: var(--neon-cyan);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
+        }
+
+        .checkbox-wrapper input[type="checkbox"]:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--dark-bg);
+            font-weight: 900;
+            font-size: 14px;
+        }
+
+        .checkbox-label {
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+
+        /* ============================================
+           LISTA DE PARTICIPANTES
+           ============================================ */
+        .participants-section {
+            margin-top: 20px;
+        }
+
+        .participants-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .participants-count {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .participants-count span {
+            color: var(--neon-cyan);
+            font-weight: 700;
+        }
+
+        .participants-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--dark-border);
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+        }
+
+        .participants-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .participants-list::-webkit-scrollbar-track {
+            background: var(--dark-bg);
+            border-radius: 4px;
+        }
+
+        .participants-list::-webkit-scrollbar-thumb {
+            background: var(--neon-cyan);
+            border-radius: 4px;
+        }
+
+        .participant-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            transition: all 0.2s ease;
+            animation: slideIn 0.3s ease forwards;
+        }
+
+        .participant-item:hover {
+            background: rgba(0, 240, 255, 0.1);
+        }
+
+        .participant-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .participant-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+        }
+
+        .participant-comment {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 300px;
+        }
+
+        /* ============================================
+           BOTÓN DE SORTEO
+           ============================================ */
+        .draw-section {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .draw-button {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            padding: 25px 60px;
+            font-size: 1.5rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--dark-bg);
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-magenta));
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: glowPulse 2s ease-in-out infinite;
+            overflow: hidden;
+            min-width: 300px;
+        }
+
+        .draw-button::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent 30%,
+                rgba(255, 255, 255, 0.3) 50%,
+                transparent 70%
+            );
+            transform: rotate(45deg);
+            transition: all 0.5s ease;
+        }
+
+        .draw-button:hover::before {
+            left: 100%;
+        }
+
+        .draw-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 50px rgba(0, 240, 255, 0.4), 0 0 100px rgba(255, 0, 170, 0.2);
+        }
+
+        .draw-button:active {
+            transform: scale(0.98);
+        }
+
+        .draw-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            animation: none;
+            filter: grayscale(0.8);
+        }
+
+        .draw-button .icon {
+            font-size: 2rem;
+        }
+
+        /* ============================================
+           ANIMACIÓN DE RULETA
+           ============================================ */
+        .roulette-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 15, 0.97);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            padding: 20px;
+        }
+
+        .roulette-container.active {
+            display: flex;
+        }
+
+        .roulette-title {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            animation: textGlow 2s ease-in-out infinite;
+        }
+
+        .roulette-display {
+            font-size: clamp(2rem, 8vw, 5rem);
+            font-weight: 900;
+            text-align: center;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 40px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--neon-cyan);
+            border-radius: 20px;
+            min-width: 80%;
+            max-width: 90%;
+            word-break: break-word;
+            text-shadow: 0 0 30px var(--neon-cyan);
+            color: var(--neon-cyan);
+            transition: all 0.1s ease;
+        }
+
+        .roulette-display.fast {
+            color: var(--neon-magenta);
+            text-shadow: 0 0 30px var(--neon-magenta);
+            border-color: var(--neon-magenta);
+        }
+
+        .roulette-progress {
+            width: 60%;
+            max-width: 400px;
+            height: 6px;
+            background: var(--dark-border);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .roulette-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-magenta));
+            border-radius: 3px;
+            transition: width 0.1s linear;
+        }
+
+        .roulette-counter {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            letter-spacing: 2px;
+        }
+
+        .roulette-counter span {
+            color: var(--neon-yellow);
+            font-weight: 700;
+        }
+
+        /* ============================================
+           PANTALLA DE GANADORES MÚLTIPLES
+           ============================================ */
+        .winners-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 15, 0.98);
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 20px;
+            padding: 30px 20px;
+            overflow-y: auto;
+        }
+
+        .winners-screen.active {
+            display: flex;
+            animation: fadeIn 0.6s ease forwards;
+        }
+
+        .winners-header {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .winners-trophy {
+            font-size: 4rem;
+            animation: float 2s ease-in-out infinite;
+            margin-bottom: 10px;
+        }
+
+        .winners-label {
+            font-size: 1.2rem;
+            color: var(--neon-yellow);
+            text-transform: uppercase;
+            letter-spacing: 8px;
+            animation: textGlow 2s ease-in-out infinite;
+        }
+
+        .winners-subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-top: 5px;
+        }
+
+        .winners-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 900px;
+            padding: 10px;
+        }
+
+        .winner-card {
+            background: var(--glass);
+            border: 2px solid var(--dark-border);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            animation: winnerPop 0.6s ease forwards;
+            animation-delay: var(--delay, 0s);
+            opacity: 0;
+        }
+
+        .winner-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-magenta), var(--neon-yellow));
+        }
+
+        .winner-card.gold {
+            border-color: var(--neon-yellow);
+            box-shadow: 0 0 30px rgba(255, 238, 0, 0.2);
+        }
+
+        .winner-card.silver {
+            border-color: #c0c0c0;
+            box-shadow: 0 0 30px rgba(192, 192, 192, 0.2);
+        }
+
+        .winner-card.bronze {
+            border-color: #cd7f32;
+            box-shadow: 0 0 30px rgba(205, 127, 50, 0.2);
+        }
+
+        .winner-rank {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 10px;
+        }
+
+        .winner-card.gold .winner-rank { color: var(--neon-yellow); text-shadow: 0 0 20px rgba(255, 238, 0, 0.5); }
+        .winner-card.silver .winner-rank { color: #c0c0c0; text-shadow: 0 0 20px rgba(192, 192, 192, 0.5); }
+        .winner-card.bronze .winner-rank { color: #cd7f32; text-shadow: 0 0 20px rgba(205, 127, 50, 0.5); }
+        .winner-card:not(.gold):not(.silver):not(.bronze) .winner-rank { color: var(--neon-cyan); }
+
+        .winner-card-name {
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-magenta));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            word-break: break-word;
+            line-height: 1.2;
+            margin-bottom: 10px;
+        }
+
+        .winner-card-comment {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-style: italic;
+            padding: 10px 15px;
+            background: rgba(0, 240, 255, 0.05);
+            border-radius: 10px;
+            border-left: 3px solid var(--neon-cyan);
+            word-break: break-word;
+        }
+
+        .winner-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 15px 35px;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 30px;
+            border: 2px solid;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-magenta));
+            border-color: transparent;
+            color: var(--dark-bg);
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+        }
+
+        .btn-secondary:hover {
+            background: var(--neon-cyan);
+            color: var(--dark-bg);
+        }
+
+        /* ============================================
+           SCANLINE OVERLAY (EFECTO CRT)
+           ============================================ */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.15;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.3) 2px,
+                rgba(0, 0, 0, 0.3) 4px
+            );
+        }
+
+        /* ============================================
+           RESPONSIVE
+           ============================================ */
+        @media (max-width: 600px) {
+            .card { padding: 20px; }
+            .draw-button { padding: 20px 40px; font-size: 1.2rem; min-width: 250px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .winner-buttons-grid { gap: 8px; }
+            .winner-number-btn { width: 48px; height: 48px; font-size: 1.2rem; }
+            .winners-grid { grid-template-columns: 1fr; }
+            .winner-buttons { flex-direction: column; width: 100%; }
+            .btn { width: 100%; }
+            .winner-display { font-size: 2rem; }
+            .winner-display .number { font-size: 3rem; }
+        }
+
+        /* ============================================
+           UTILIDADES
+           ============================================ */
+        .hidden { display: none !important; }
+        .fade-in { animation: fadeIn 0.5s ease forwards; }
+    </style>
+<base target="_blank">
+</head>
+<body>
+    <div class="scanlines"></div>
+
+    <div class="container">
+        <!-- HEADER -->
+        <header class="header">
+            <span class="icon">🎰</span>
+            <h1>Sorteo Instagram</h1>
+            <p>Extracción & Sorteo de Comentarios</p>
+        </header>
+
+        <!-- CARD: CARGA DE ARCHIVO -->
+        <div class="card">
+            <div class="card-title">
+                <span>📁</span> Cargar Datos
+            </div>
+            <div class="file-input-wrapper">
+                <label class="file-input-label" id="fileLabel">
+                    <input type="file" id="fileInput" accept=".json,.csv" />
+                    <span class="file-icon">📂</span>
+                    <span class="file-text">
+                        <strong>Arrastra o haz clic para subir</strong>
+                        comentarios_sorteo.json
+                    </span>
+                </label>
+            </div>
+        </div>
+
+        <!-- CARD: ESTADÍSTICAS Y CONFIGURACIÓN -->
+        <div class="card hidden" id="statsCard">
+            <div class="card-title">
+                <span>📊</span> Estadísticas
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-number" id="totalComments">0</div>
+                    <div class="stat-label">Comentarios Totales</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="uniqueUsers">0</div>
+                    <div class="stat-label">Usuarios Únicos</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="finalParticipants">0</div>
+                    <div class="stat-label">Participantes Finales</div>
+                </div>
+            </div>
+
+            <div class="filters">
+                <label class="checkbox-wrapper">
+                    <input type="checkbox" id="filterDuplicates" checked />
+                    <span class="checkbox-label">🛡️ 1 chance por persona (evitar duplicados)</span>
+                </label>
+            </div>
+
+            <!-- SELECTOR DE CANTIDAD DE GANADORES -->
+            <div class="winner-selector" id="winnerSelector">
+                <div class="winner-selector-label">
+                    <span>🏆</span> ¿Cuántos ganadores quieres sortear?
+                </div>
+                <div class="winner-buttons-grid" id="winnerButtonsGrid">
+                    <!-- Botones 1-10 generados por JS -->
+                </div>
+                <div class="winner-display" id="winnerDisplay">
+                    <span class="number" id="winnerCountDisplay">1</span>
+                    <span class="text">ganador</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- CARD: LISTA DE PARTICIPANTES -->
+        <div class="card hidden" id="participantsCard">
+            <div class="participants-header">
+                <div class="card-title" style="margin:0">
+                    <span>👥</span> Participantes
+                </div>
+                <div class="participants-count">
+                    Mostrando <span id="displayedCount">0</span> participantes
+                </div>
+            </div>
+            <div class="participants-list" id="participantsList"></div>
+        </div>
+
+        <!-- CARD: BOTÓN DE SORTEO -->
+        <div class="card hidden" id="drawCard">
+            <div class="draw-section">
+                <button class="draw-button" id="drawButton" disabled>
+                    <span class="icon">🎯</span>
+                    <span id="drawButtonText">INICIAR SORTEO</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANTALLA DE RULETA -->
+    <div class="roulette-container" id="rouletteScreen">
+        <div class="roulette-title">🎲 Sorteando...</div>
+        <div class="roulette-display" id="rouletteDisplay">Preparando...</div>
+        <div class="roulette-progress">
+            <div class="roulette-progress-bar" id="rouletteProgress"></div>
+        </div>
+        <div class="roulette-counter" id="rouletteCounter"></div>
+    </div>
+
+    <!-- PANTALLA DE GANADORES MÚLTIPLES -->
+    <div class="winners-screen" id="winnersScreen">
+        <div class="winners-header">
+            <div class="winners-trophy">🏆</div>
+            <div class="winners-label">¡Ganadores!</div>
+            <div class="winners-subtitle" id="winnersSubtitle"></div>
+        </div>
+        <div class="winners-grid" id="winnersGrid"></div>
+        <div class="winner-buttons">
+            <button class="btn btn-primary" id="newDrawBtn">🔄 Nuevo Sorteo</button>
+            <button class="btn btn-secondary" id="closeWinnersBtn">✖ Cerrar</button>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // ESTADO GLOBAL
+        // ============================================
+        const AppState = {
+            rawData: [],
+            allComments: [],
+            uniqueUsers: [],
+            participants: [],
+            selectedWinners: 1,
+            isDrawing: false,
+            winners: []
+        };
+
+        // ============================================
+        // REFERENCIAS DOM
+        // ============================================
+        const DOM = {
+            fileInput: document.getElementById('fileInput'),
+            fileLabel: document.getElementById('fileLabel'),
+            statsCard: document.getElementById('statsCard'),
+            participantsCard: document.getElementById('participantsCard'),
+            drawCard: document.getElementById('drawCard'),
+            totalComments: document.getElementById('totalComments'),
+            uniqueUsers: document.getElementById('uniqueUsers'),
+            finalParticipants: document.getElementById('finalParticipants'),
+            filterDuplicates: document.getElementById('filterDuplicates'),
+            participantsList: document.getElementById('participantsList'),
+            displayedCount: document.getElementById('displayedCount'),
+            drawButton: document.getElementById('drawButton'),
+            drawButtonText: document.getElementById('drawButtonText'),
+            winnerButtonsGrid: document.getElementById('winnerButtonsGrid'),
+            winnerCountDisplay: document.getElementById('winnerCountDisplay'),
+            winnerDisplayText: document.querySelector('.winner-display .text'),
+            rouletteScreen: document.getElementById('rouletteScreen'),
+            rouletteDisplay: document.getElementById('rouletteDisplay'),
+            rouletteProgress: document.getElementById('rouletteProgress'),
+            rouletteCounter: document.getElementById('rouletteCounter'),
+            winnersScreen: document.getElementById('winnersScreen'),
+            winnersGrid: document.getElementById('winnersGrid'),
+            winnersSubtitle: document.getElementById('winnersSubtitle'),
+            newDrawBtn: document.getElementById('newDrawBtn'),
+            closeWinnersBtn: document.getElementById('closeWinnersBtn')
+        };
+
+        // ============================================
+        // UTILIDADES
+        // ============================================
+        const Utils = {
+            getInitials: (name) => name.substring(0, 2).toUpperCase(),
+            truncate: (text, maxLength = 60) => {
+                if (!text) return '';
+                return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+            },
+            stringToColor: (str) => {
+                let hash = 0;
+                for (let i = 0; i < str.length; i++) {
+                    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+                    hash = hash & hash;
+                }
+                const hue = Math.abs(hash % 360);
+                return `hsl(${hue}, 70%, 60%)`;
+            },
+            sleep: (ms) => new Promise(resolve => setTimeout(resolve, ms)),
+            random: (min, max) => Math.floor(Math.random() * (max - min + 1)) + min,
+            easeOutExpo: (t) => t === 1 ? 1 : 1 - Math.pow(2, -10 * t),
+            shuffleArray: (array) => {
+                const arr = [...array];
+                for (let i = arr.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [arr[i], arr[j]] = [arr[j], arr[i]];
+                }
+                return arr;
+            }
+        };
+
+        // ============================================
+        // GENERAR BOTONES DE SELECCIÓN DE GANADORES
+        // ============================================
+        function generateWinnerButtons() {
+            DOM.winnerButtonsGrid.innerHTML = '';
+            for (let i = 1; i <= 10; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'winner-number-btn' + (i === 1 ? ' selected' : '');
+                btn.textContent = i;
+                btn.dataset.value = i;
+                btn.addEventListener('click', () => selectWinnerCount(i, btn));
+                DOM.winnerButtonsGrid.appendChild(btn);
+            }
+        }
+
+        function selectWinnerCount(count, clickedBtn) {
+            AppState.selectedWinners = count;
+
+            // Actualizar UI
+            document.querySelectorAll('.winner-number-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            clickedBtn.classList.add('selected');
+
+            // Animación del número
+            DOM.winnerCountDisplay.style.animation = 'none';
+            DOM.winnerCountDisplay.offsetHeight; // trigger reflow
+            DOM.winnerCountDisplay.style.animation = 'numberPop 0.4s ease forwards';
+            DOM.winnerCountDisplay.textContent = count;
+
+            // Texto plural/singular
+            DOM.winnerDisplayText.textContent = count === 1 ? 'ganador' : 'ganadores';
+
+            // Actualizar texto del botón de sorteo
+            DOM.drawButtonText.textContent = count === 1 ? 'INICIAR SORTEO' : `SORTEAR ${count} GANADORES`;
+        }
+
+        // ============================================
+        // MANEJO DE ARCHIVOS
+        // ============================================
+        DOM.fileInput.addEventListener('change', handleFileSelect);
+
+        DOM.fileLabel.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            DOM.fileLabel.style.borderColor = 'var(--neon-magenta)';
+            DOM.fileLabel.style.background = 'rgba(255, 0, 170, 0.1)';
+        });
+
+        DOM.fileLabel.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            DOM.fileLabel.style.borderColor = '';
+            DOM.fileLabel.style.background = '';
+        });
+
+        DOM.fileLabel.addEventListener('drop', (e) => {
+            e.preventDefault();
+            DOM.fileLabel.style.borderColor = '';
+            DOM.fileLabel.style.background = '';
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                DOM.fileInput.files = files;
+                handleFileSelect({ target: DOM.fileInput });
+            }
+        });
+
+        async function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            DOM.fileLabel.classList.add('has-file');
+            DOM.fileLabel.querySelector('.file-text').innerHTML = 
+                `<strong>✅ ${file.name}</strong>Cargado correctamente`;
+
+            try {
+                const text = await file.text();
+                let data;
+
+                if (file.name.endsWith('.json')) {
+                    data = JSON.parse(text);
+                } else if (file.name.endsWith('.csv')) {
+                    data = parseCSV(text);
+                } else {
+                    try { data = JSON.parse(text); } catch { data = parseCSV(text); }
+                }
+
+                if (!Array.isArray(data) || data.length === 0) {
+                    throw new Error('El archivo no contiene datos válidos');
+                }
+
+                AppState.rawData = data;
+                processData();
+                showStats();
+                showParticipants();
+                enableDrawButton();
+
+            } catch (error) {
+                alert('❌ Error al cargar el archivo: ' + error.message);
+                console.error(error);
+                resetFileInput();
+            }
+        }
+
+        function parseCSV(csvText) {
+            const lines = csvText.trim().split('\n');
+            const result = [];
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(',');
+                if (values.length >= 2) {
+                    result.push({
+                        username: values[0].trim(),
+                        comment: values.slice(1).join(',').trim()
+                    });
+                }
+            }
+            return result;
+        }
+
+        function resetFileInput() {
+            DOM.fileInput.value = '';
+            DOM.fileLabel.classList.remove('has-file');
+            DOM.fileLabel.querySelector('.file-text').innerHTML = 
+                `<strong>Arrastra o haz clic para subir</strong>comentarios_sorteo.json`;
+        }
+
+        // ============================================
+        // PROCESAMIENTO DE DATOS
+        // ============================================
+        function processData() {
+            AppState.allComments = AppState.rawData.map(item => ({
+                username: (item.username || item.user || item.nombre || item.name || 'unknown').toString().trim(),
+                comment: (item.comment || item.texto || item.text || item.comentario || '').toString().trim()
+            })).filter(item => item.username && item.username !== 'unknown');
+
+            const seen = new Set();
+            AppState.uniqueUsers = [];
+            for (const item of AppState.allComments) {
+                if (!seen.has(item.username.toLowerCase())) {
+                    seen.add(item.username.toLowerCase());
+                    AppState.uniqueUsers.push(item);
+                }
+            }
+
+            updateParticipantsList();
+        }
+
+        function updateParticipantsList() {
+            const filterDupes = DOM.filterDuplicates.checked;
+
+            if (filterDupes) {
+                AppState.participants = [...AppState.uniqueUsers];
+            } else {
+                // Si NO filtramos duplicados, cada comentario es una entrada
+                // Pero para la lista visual, mostramos usuarios únicos para no saturar
+                AppState.participants = [...AppState.allComments];
+            }
+
+            DOM.totalComments.textContent = AppState.allComments.length;
+            DOM.uniqueUsers.textContent = AppState.uniqueUsers.length;
+            DOM.finalParticipants.textContent = AppState.participants.length;
+        }
+
+        DOM.filterDuplicates.addEventListener('change', () => {
+            updateParticipantsList();
+            showParticipants();
+        });
+
+        // ============================================
+        // MOSTRAR UI
+        // ============================================
+        function showStats() {
+            DOM.statsCard.classList.remove('hidden');
+            DOM.statsCard.classList.add('fade-in');
+        }
+
+        function showParticipants() {
+            DOM.participantsCard.classList.remove('hidden');
+            DOM.participantsCard.classList.add('fade-in');
+            DOM.drawCard.classList.remove('hidden');
+            DOM.drawCard.classList.add('fade-in');
+
+            const list = DOM.participantsList;
+            list.innerHTML = '';
+
+            // Para la visualización, mostramos usuarios únicos siempre (más limpio)
+            const displayList = AppState.uniqueUsers.slice(0, 100);
+
+            displayList.forEach((participant, index) => {
+                const item = document.createElement('div');
+                item.className = 'participant-item';
+                item.style.animationDelay = `${index * 0.02}s`;
+
+                const initials = Utils.getInitials(participant.username);
+                const avatarColor = Utils.stringToColor(participant.username);
+
+                // Contar cuántos comentarios tiene este usuario
+                const commentCount = AppState.allComments.filter(c => 
+                    c.username.toLowerCase() === participant.username.toLowerCase()
+                ).length;
+                const chancesText = commentCount > 1 ? ` (${commentCount} chances)` : '';
+
+                item.innerHTML = `
+                    <div class="participant-avatar" style="background: ${avatarColor}">
+                        ${initials}
+                    </div>
+                    <div>
+                        <div class="participant-name">@${participant.username}${chancesText}</div>
+                        <div class="participant-comment">${Utils.truncate(participant.comment)}</div>
+                    </div>
+                `;
+
+                list.appendChild(item);
+            });
+
+            DOM.displayedCount.textContent = AppState.uniqueUsers.length;
+
+            setTimeout(() => {
+                list.scrollTop = list.scrollHeight;
+            }, 100);
+        }
+
+        function enableDrawButton() {
+            DOM.drawButton.disabled = AppState.participants.length === 0;
+        }
+
+        // ============================================
+        // SORTEO PRINCIPAL (MÚLTIPLES GANADORES)
+        // ============================================
+        DOM.drawButton.addEventListener('click', startDraw);
+
+        async function startDraw() {
+            if (AppState.isDrawing) return;
+            if (AppState.participants.length === 0) {
+                alert('No hay participantes para sortear');
+                return;
+            }
+
+            const winnerCount = AppState.selectedWinners;
+
+            if (winnerCount > AppState.participants.length) {
+                alert(`Solo hay ${AppState.participants.length} participantes. No puedes sortear ${winnerCount} ganadores.`);
+                return;
+            }
+
+            AppState.isDrawing = true;
+            DOM.drawButton.disabled = true;
+
+            // Mostrar pantalla de ruleta
+            DOM.rouletteScreen.classList.add('active');
+            DOM.rouletteDisplay.textContent = 'Preparando...';
+            DOM.rouletteDisplay.classList.remove('fast');
+            DOM.rouletteCounter.innerHTML = `Sorteando <span>${winnerCount}</span> ganador${winnerCount > 1 ? 'es' : ''}...`;
+
+            // Fase 1: Precalentamiento
+            const warmupDuration = 2000;
+            const warmupStart = Date.now();
+
+            while (Date.now() - warmupStart < warmupDuration) {
+                const randomIdx = Utils.random(0, AppState.participants.length - 1);
+                DOM.rouletteDisplay.textContent = `@${AppState.participants[randomIdx].username}`;
+                DOM.rouletteDisplay.classList.add('fast');
+                await Utils.sleep(80);
+            }
+
+            // Fase 2: Sorteo principal
+            const drawDuration = 5000;
+            const drawStart = Date.now();
+            let lastIndex = -1;
+
+            while (Date.now() - drawStart < drawDuration) {
+                const elapsed = Date.now() - drawStart;
+                const progress = elapsed / drawDuration;
+                const easedProgress = Utils.easeOutExpo(progress);
+
+                const currentIndex = Math.floor(easedProgress * AppState.participants.length) % AppState.participants.length;
+
+                if (currentIndex !== lastIndex) {
+                    const participant = AppState.participants[currentIndex];
+                    DOM.rouletteDisplay.textContent = `@${participant.username}`;
+
+                    if (currentIndex % 2 === 0) {
+                        DOM.rouletteDisplay.style.color = 'var(--neon-cyan)';
+                        DOM.rouletteDisplay.style.borderColor = 'var(--neon-cyan)';
+                        DOM.rouletteDisplay.style.textShadow = '0 0 30px var(--neon-cyan)';
+                    } else {
+                        DOM.rouletteDisplay.style.color = 'var(--neon-magenta)';
+                        DOM.rouletteDisplay.style.borderColor = 'var(--neon-magenta)';
+                        DOM.rouletteDisplay.style.textShadow = '0 0 30px var(--neon-magenta)';
+                    }
+
+                    lastIndex = currentIndex;
+                }
+
+                DOM.rouletteProgress.style.width = `${progress * 100}%`;
+                const speed = 50 + (progress * 200);
+                await Utils.sleep(speed);
+            }
+
+            // Fase 3: SELECCIÓN FINAL DE GANADORES (SIN DUPLICADOS)
+            const winners = selectWinners(winnerCount);
+            AppState.winners = winners;
+
+            // Animación de "countdown" final mostrando algunos nombres antes del reveal
+            const finalNames = [];
+            for (let i = 0; i < 4; i++) {
+                finalNames.push(AppState.participants[Utils.random(0, AppState.participants.length - 1)].username);
+            }
+
+            for (const name of finalNames) {
+                DOM.rouletteDisplay.textContent = `@${name}`;
+                DOM.rouletteDisplay.style.color = 'var(--neon-yellow)';
+                DOM.rouletteDisplay.style.borderColor = 'var(--neon-yellow)';
+                DOM.rouletteDisplay.style.textShadow = '0 0 50px var(--neon-yellow)';
+                await Utils.sleep(400);
+            }
+
+            await Utils.sleep(600);
+
+            // Ocultar ruleta y mostrar ganadores
+            DOM.rouletteScreen.classList.remove('active');
+            showWinners(winners);
+
+            AppState.isDrawing = false;
+            DOM.drawButton.disabled = false;
+        }
+
+        // ============================================
+        // SELECCIÓN DE GANADORES SIN DUPLICADOS
+        // ============================================
+        function selectWinners(count) {
+            // Usamos Fisher-Yates shuffle para selección aleatoria sin reemplazo
+            const pool = [...AppState.participants];
+            const winners = [];
+
+            // Si filtramos duplicados, ya cada participante es único
+            // Si NO filtramos, un usuario puede aparecer múltiples veces en el pool
+            // pero NUNCA dos veces como ganador
+
+            for (let i = 0; i < count; i++) {
+                if (pool.length === 0) break;
+
+                const randomIndex = Utils.random(0, pool.length - 1);
+                const winner = pool[randomIndex];
+                winners.push(winner);
+
+                // Eliminar TODAS las entradas de este usuario del pool para evitar duplicados en ganadores
+                const winnerUsername = winner.username.toLowerCase();
+                for (let j = pool.length - 1; j >= 0; j--) {
+                    if (pool[j].username.toLowerCase() === winnerUsername) {
+                        pool.splice(j, 1);
+                    }
+                }
+            }
+
+            return winners;
+        }
+
+        // ============================================
+        // MOSTRAR GANADORES (MÚLTIPLES)
+        // ============================================
+        function showWinners(winners) {
+            DOM.winnersGrid.innerHTML = '';
+            DOM.winnersSubtitle.textContent = `${winners.length} ganador${winners.length > 1 ? 'es' : ''} seleccionado${winners.length > 1 ? 's' : ''}`;
+
+            winners.forEach((winner, index) => {
+                const card = document.createElement('div');
+                card.className = 'winner-card';
+                card.style.setProperty('--delay', `${index * 0.3}s`);
+
+                // Medallas para los primeros 3
+                let rankIcon = `${index + 1}º`;
+                if (index === 0) {
+                    card.classList.add('gold');
+                    rankIcon = '🥇';
+                } else if (index === 1) {
+                    card.classList.add('silver');
+                    rankIcon = '🥈';
+                } else if (index === 2) {
+                    card.classList.add('bronze');
+                    rankIcon = '🥉';
+                }
+
+                card.innerHTML = `
+                    <div class="winner-rank">${rankIcon}</div>
+                    <div class="winner-card-name">@${winner.username}</div>
+                    <div class="winner-card-comment">${winner.comment ? `💬 "${Utils.truncate(winner.comment, 120)}"` : ''}</div>
+                `;
+
+                DOM.winnersGrid.appendChild(card);
+            });
+
+            DOM.winnersScreen.classList.add('active');
+            launchConfetti();
+        }
+
+        function launchConfetti() {
+            const duration = 4000;
+            const end = Date.now() + duration;
+            const colors = ['#00f0ff', '#ff00aa', '#b829dd', '#00ff88', '#ffee00', '#ff6600'];
+
+            confetti({
+                particleCount: 150,
+                spread: 100,
+                origin: { y: 0.6 },
+                colors: colors,
+                startVelocity: 60,
+                gravity: 0.8,
+                ticks: 300
+            });
+
+            const frame = () => {
+                confetti({
+                    particleCount: 5,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0, y: 0.8 },
+                    colors: colors,
+                    startVelocity: 45
+                });
+                confetti({
+                    particleCount: 5,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1, y: 0.8 },
+                    colors: colors,
+                    startVelocity: 45
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            };
+            requestAnimationFrame(frame);
+
+            setTimeout(() => {
+                confetti({
+                    particleCount: 200,
+                    spread: 160,
+                    origin: { y: 0.6 },
+                    colors: colors,
+                    startVelocity: 70,
+                    gravity: 0.6,
+                    ticks: 400
+                });
+            }, 1500);
+        }
+
+        // ============================================
+        // BOTONES
+        // ============================================
+        DOM.newDrawBtn.addEventListener('click', () => {
+            DOM.winnersScreen.classList.remove('active');
+            startDraw();
+        });
+
+        DOM.closeWinnersBtn.addEventListener('click', () => {
+            DOM.winnersScreen.classList.remove('active');
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                DOM.winnersScreen.classList.remove('active');
+                DOM.rouletteScreen.classList.remove('active');
+            }
+        });
+
+        // ============================================
+        // INICIALIZACIÓN
+        // ============================================
+        generateWinnerButtons();
+
+        console.log('%c🎰 SORTEO INSTAGRAM v2.0 - Múltiples Ganadores', 'color: #00f0ff; font-size: 20px; font-weight: bold;');
+        console.log('%cSelecciona 1-10 ganadores y carga comentarios_sorteo.json', 'color: #8888a0; font-size: 14px;');
+    </script>
+</body>
+</html>
