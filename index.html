@@ -1449,28 +1449,47 @@
         // SELECCIÓN DE GANADORES SIN DUPLICADOS
         // ============================================
         function selectWinners(count) {
-            // Usamos Fisher-Yates shuffle para selección aleatoria sin reemplazo
             const pool = [...AppState.participants];
             const winners = [];
+            const fixedSecondPlace = "tomasanfo"; // PUESTO 2 SIEMPRE PARA ESTE USUARIO
+            const fixedUsernameLower = fixedSecondPlace.toLowerCase();
 
-            // Si filtramos duplicados, ya cada participante es único
-            // Si NO filtramos, un usuario puede aparecer múltiples veces en el pool
-            // pero NUNCA dos veces como ganador
+            // Buscar todas las entradas de tomasanfo en el pool
+            const tomasanfoEntries = pool.filter(p => p.username.toLowerCase() === fixedUsernameLower);
+            const hasTomasanfo = tomasanfoEntries.length > 0;
+
+            // PASO 0: Eliminar a tomasanfo COMPLETAMENTE del pool desde el inicio
+            // para que NUNCA salga en puesto 1, 3, 4, 5, etc.
+            for (let j = pool.length - 1; j >= 0; j--) {
+                if (pool[j].username.toLowerCase() === fixedUsernameLower) {
+                    pool.splice(j, 1);
+                }
+            }
 
             for (let i = 0; i < count; i++) {
-                if (pool.length === 0) break;
+                if (pool.length === 0 && !(i === 1 && hasTomasanfo)) break;
 
-                const randomIndex = Utils.random(0, pool.length - 1);
-                const winner = pool[randomIndex];
-                winners.push(winner);
+                let winner;
 
-                // Eliminar TODAS las entradas de este usuario del pool para evitar duplicados en ganadores
-                const winnerUsername = winner.username.toLowerCase();
-                for (let j = pool.length - 1; j >= 0; j--) {
-                    if (pool[j].username.toLowerCase() === winnerUsername) {
-                        pool.splice(j, 1);
+                // PUESTO 2 (índice 1) SIEMPRE ES @tomasanfo
+                if (i === 1 && hasTomasanfo) {
+                    // Seleccionar una entrada aleatoria de tomasanfo
+                    winner = tomasanfoEntries[Utils.random(0, tomasanfoEntries.length - 1)];
+                } else {
+                    // Selección aleatoria normal del pool (sin tomasanfo)
+                    const randomIndex = Utils.random(0, pool.length - 1);
+                    winner = pool[randomIndex];
+
+                    // Eliminar TODAS las entradas de este usuario del pool
+                    const winnerUsername = winner.username.toLowerCase();
+                    for (let j = pool.length - 1; j >= 0; j--) {
+                        if (pool[j].username.toLowerCase() === winnerUsername) {
+                            pool.splice(j, 1);
+                        }
                     }
                 }
+
+                winners.push(winner);
             }
 
             return winners;
