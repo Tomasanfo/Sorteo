@@ -6,7 +6,7 @@
     <title>Sorteo de Instagram</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
         *, *::before, *::after {
             margin: 0;
@@ -15,53 +15,68 @@
         }
 
         :root {
-            --bg: #fafafa;
-            --bg-card: #ffffff;
-            --bg-dark: #000000;
-            --text: #262626;
-            --text-secondary: #737373;
-            --text-muted: #a8a8a8;
-            --border: #dbdbdb;
-            --border-light: #efefef;
+            /* Paleta Dark Mode Avanzada */
+            --bg-base: #050505;
+            --bg-radial: radial-gradient(circle at 80% -20%, #2b1836 0%, #050505 60%);
+            --bg-card: rgba(18, 18, 20, 0.65);
+            --bg-card-hover: rgba(25, 25, 28, 0.8);
+            --bg-surface: rgba(255, 255, 255, 0.03);
+            
+            --text-main: #f8f9fa;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            
+            --border-subtle: rgba(255, 255, 255, 0.06);
+            --border-light: rgba(255, 255, 255, 0.12);
+            --border-focus: rgba(255, 255, 255, 0.2);
+            
+            /* Degradados y Acentos */
             --ig-gradient: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
-            --ig-purple: #833ab4;
+            --ig-purple: #bc1888;
             --ig-pink: #e1306c;
-            --blue: #0095f6;
-            --blue-hover: #1877f2;
-            --green: #00d26a;
-            --shadow: 0 1px 2px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
-            --shadow-hover: 0 4px 12px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.06);
+            
+            --neon-blue: #3b82f6;
+            --neon-green: #10b981;
+            
+            /* Sombras Premium */
+            --glow-ig: 0 0 24px rgba(225, 48, 108, 0.3);
+            --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --shadow-inner: inset 0 1px 0 rgba(255, 255, 255, 0.05);
         }
+
+        /* Scrollbar Premium */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-base); }
+        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #52525b; }
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg);
-            color: var(--text);
+            background: var(--bg-radial);
+            background-color: var(--bg-base);
+            background-attachment: fixed;
+            color: var(--text-main);
             min-height: 100vh;
             line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
         }
 
         /* ============================================
            ANIMACIONES
            ============================================ */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(16px); }
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes fadeInScale {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
+            from { opacity: 0; transform: scale(0.92); filter: blur(4px); }
+            to { opacity: 1; transform: scale(1); filter: blur(0); }
         }
 
         @keyframes slideUp {
             from { opacity: 0; transform: translateY(12px); }
             to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.03); }
         }
 
         @keyframes gradientShift {
@@ -71,20 +86,25 @@
         }
 
         @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-6px); }
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(2deg); }
         }
 
         @keyframes winnerReveal {
-            0% { opacity: 0; transform: scale(0.9) translateY(20px); }
+            0% { opacity: 0; transform: scale(0.85) translateY(30px); }
             100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(188, 24, 136, 0.2); }
+            50% { box-shadow: 0 0 30px rgba(225, 48, 108, 0.5); }
         }
 
         /* ============================================
            LAYOUT
            ============================================ */
         .container {
-            max-width: 520px;
+            max-width: 540px;
             margin: 0 auto;
             padding: 0 16px 40px;
         }
@@ -94,97 +114,109 @@
            ============================================ */
         .header {
             text-align: center;
-            padding: 40px 0 24px;
-            animation: fadeIn 0.5s ease;
+            padding: 48px 0 32px;
+            animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .header-logo {
-            width: 72px;
-            height: 72px;
-            margin: 0 auto 16px;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
             background: var(--ig-gradient);
-            border-radius: 20px;
+            border-radius: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 32px;
-            box-shadow: var(--shadow);
+            font-size: 36px;
+            box-shadow: var(--glow-ig);
+            position: relative;
+        }
+        
+        .header-logo::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 24px;
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.3);
+            pointer-events: none;
         }
 
         .header h1 {
-            font-size: 1.6rem;
-            font-weight: 800;
+            font-size: 1.8rem;
+            font-weight: 900;
             letter-spacing: -0.5px;
-            color: var(--text);
-            margin-bottom: 4px;
+            color: var(--text-main);
+            margin-bottom: 6px;
         }
 
         .header p {
             color: var(--text-secondary);
-            font-size: 0.9rem;
+            font-size: 0.95rem;
+            font-weight: 400;
         }
 
         /* ============================================
-           CARD
+           CARD (GLASSMORPHISM)
            ============================================ */
         .card {
             background: var(--bg-card);
-            border: 1px solid var(--border-light);
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 16px;
-            box-shadow: var(--shadow);
-            animation: fadeIn 0.5s ease both;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 28px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-glass), var(--shadow-inner);
+            animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .card:hover {
+            border-color: var(--border-light);
         }
 
         .card-header {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 20px;
+            gap: 16px;
+            margin-bottom: 24px;
         }
 
         .card-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            background: var(--ig-gradient);
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-light);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 20px;
             flex-shrink: 0;
+            box-shadow: inset 0 1px 1px rgba(255,255,255,0.1);
         }
 
-        .card-icon.blue {
-            background: linear-gradient(135deg, #0095f6, #1877f2);
-        }
-
-        .card-icon.green {
-            background: linear-gradient(135deg, #00d26a, #00b894);
-        }
-
-        .card-icon.purple {
-            background: linear-gradient(135deg, #833ab4, #e1306c);
-        }
+        .card-icon.blue { background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(37, 99, 235, 0.15)); border-color: rgba(59, 130, 246, 0.3); color: #60a5fa; }
+        .card-icon.green { background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.15)); border-color: rgba(16, 185, 129, 0.3); color: #34d399; }
+        .card-icon.purple { background: linear-gradient(135deg, rgba(188, 24, 136, 0.15), rgba(225, 48, 108, 0.15)); border-color: rgba(225, 48, 108, 0.3); color: #f472b6; }
 
         .card-title {
             font-weight: 700;
-            font-size: 1rem;
-            color: var(--text);
+            font-size: 1.05rem;
+            color: var(--text-main);
+            letter-spacing: -0.3px;
         }
 
         .card-subtitle {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: var(--text-muted);
+            margin-top: 2px;
         }
 
         /* ============================================
            FILE INPUT
            ============================================ */
-        .file-input {
-            position: relative;
-        }
+        .file-input { position: relative; }
 
         .file-label {
             display: flex;
@@ -192,22 +224,25 @@
             align-items: center;
             justify-content: center;
             width: 100%;
-            min-height: 140px;
-            border: 2px dashed var(--border);
-            border-radius: 12px;
+            min-height: 160px;
+            border: 2px dashed var(--border-light);
+            border-radius: 16px;
             cursor: pointer;
-            transition: all 0.2s ease;
-            background: var(--bg);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(0, 0, 0, 0.2);
         }
 
         .file-label:hover {
-            border-color: var(--blue);
-            background: rgba(0, 149, 246, 0.03);
+            border-color: var(--ig-purple);
+            background: rgba(188, 24, 136, 0.05);
+            box-shadow: inset 0 0 20px rgba(188, 24, 136, 0.05);
         }
 
         .file-label.has-file {
-            border-color: var(--green);
-            background: rgba(0, 210, 106, 0.03);
+            border-color: var(--neon-green);
+            background: rgba(16, 185, 129, 0.05);
+            border-style: solid;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.1);
         }
 
         .file-label input {
@@ -219,21 +254,28 @@
         }
 
         .file-label-icon {
-            font-size: 2.5rem;
-            margin-bottom: 8px;
+            font-size: 2.8rem;
+            margin-bottom: 12px;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+            transition: transform 0.3s ease;
+        }
+        
+        .file-label:hover .file-label-icon {
+            transform: translateY(-4px);
         }
 
         .file-label-text {
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             color: var(--text-secondary);
             text-align: center;
         }
 
         .file-label-text strong {
-            color: var(--text);
+            color: var(--text-main);
             display: block;
-            margin-bottom: 2px;
-            font-weight: 600;
+            margin-bottom: 4px;
+            font-weight: 700;
+            font-size: 1rem;
         }
 
         /* ============================================
@@ -243,29 +285,37 @@
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 12px;
-            margin: 16px 0;
+            margin: 20px 0;
         }
 
         .stat {
             text-align: center;
-            padding: 16px 8px;
-            background: var(--bg);
-            border-radius: 12px;
+            padding: 20px 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 14px;
+            border: 1px solid var(--border-subtle);
+            transition: transform 0.2s ease;
         }
+        
+        .stat:hover { transform: translateY(-2px); border-color: var(--border-light); }
 
         .stat-value {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--text);
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: var(--text-main);
             line-height: 1;
+            background: linear-gradient(to bottom, #ffffff, #a1a1aa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .stat-label {
             font-size: 0.7rem;
             color: var(--text-muted);
-            margin-top: 6px;
+            margin-top: 8px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
+            font-weight: 600;
         }
 
         /* ============================================
@@ -274,60 +324,65 @@
         .filter {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 12px 0;
+            gap: 12px;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            border: 1px solid var(--border-subtle);
             cursor: pointer;
             user-select: none;
+            transition: background 0.2s;
         }
+        
+        .filter:hover { background: rgba(0, 0, 0, 0.4); }
 
         .filter input {
             appearance: none;
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--border);
+            width: 22px;
+            height: 22px;
+            border: 2px solid var(--border-light);
             border-radius: 6px;
-            background: white;
+            background: transparent;
             cursor: pointer;
             position: relative;
             transition: all 0.2s ease;
         }
 
         .filter input:checked {
-            background: var(--blue);
-            border-color: var(--blue);
+            background: var(--ig-gradient);
+            border-color: transparent;
         }
 
         .filter input:checked::after {
             content: '';
             position: absolute;
-            top: 2px;
-            left: 6px;
+            top: 3px;
+            left: 7px;
             width: 5px;
             height: 10px;
             border: solid white;
-            border-width: 0 2px 2px 0;
+            border-width: 0 2.5px 2.5px 0;
             transform: rotate(45deg);
         }
 
         .filter-text {
-            font-size: 0.85rem;
+            font-size: 0.9rem;
+            font-weight: 500;
             color: var(--text-secondary);
         }
 
         /* ============================================
            WINNER SELECTOR
            ============================================ */
-        .selector {
-            margin-top: 16px;
-        }
+        .selector { margin-top: 24px; }
 
         .selector-label {
             font-size: 0.8rem;
-            font-weight: 600;
+            font-weight: 700;
             color: var(--text-muted);
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
         }
 
         .selector-grid {
@@ -337,25 +392,26 @@
         }
 
         .selector-btn {
+            flex: 1;
             min-width: 44px;
             height: 44px;
-            border-radius: 10px;
-            border: 1.5px solid var(--border);
-            background: white;
+            border-radius: 12px;
+            border: 1px solid var(--border-light);
+            background: rgba(0,0,0,0.3);
             color: var(--text-secondary);
-            font-size: 0.95rem;
-            font-weight: 700;
+            font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.15s ease;
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 0 14px;
         }
 
         .selector-btn:hover {
-            border-color: var(--ig-purple);
-            color: var(--ig-purple);
+            border-color: var(--border-focus);
+            color: var(--text-main);
+            background: rgba(255,255,255,0.05);
         }
 
         .selector-btn.selected {
@@ -364,31 +420,37 @@
             border-color: transparent;
             color: white;
             font-weight: 800;
-            animation: gradientShift 3s ease infinite;
+            animation: gradientShift 4s ease infinite;
+            box-shadow: var(--glow-ig);
         }
 
         .selector-display {
             text-align: center;
-            margin-top: 16px;
-            padding: 12px;
-            background: var(--bg);
-            border-radius: 10px;
+            margin-top: 20px;
+            padding: 16px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            border: 1px solid var(--border-subtle);
         }
 
         .selector-count {
-            font-size: 2.2rem;
+            font-size: 2.5rem;
             font-weight: 900;
             background: var(--ig-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             line-height: 1;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
         }
 
         .selector-text {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: var(--text-muted);
-            margin-top: 4px;
+            margin-top: 6px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
         /* ============================================
@@ -398,58 +460,60 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-subtle);
         }
 
         .participants-title {
             font-weight: 700;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
+            color: var(--text-main);
         }
 
         .participants-count {
-            font-size: 0.8rem;
-            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--ig-purple);
+            background: rgba(188, 24, 136, 0.1);
+            padding: 4px 10px;
+            border-radius: 20px;
         }
 
         .participants-list {
-            max-height: 280px;
+            max-height: 320px;
             overflow-y: auto;
-        }
-
-        .participants-list::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .participants-list::-webkit-scrollbar-thumb {
-            background: var(--border);
-            border-radius: 2px;
+            padding-right: 4px;
         }
 
         .participant {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 10px 0;
-            border-bottom: 1px solid var(--border-light);
+            gap: 14px;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 6px;
+            background: transparent;
+            transition: background 0.2s ease;
             animation: slideUp 0.3s ease forwards;
         }
-
-        .participant:last-child {
-            border-bottom: none;
-        }
+        
+        .participant:hover { background: rgba(255,255,255,0.03); }
 
         .participant-avatar {
-            width: 36px;
-            height: 36px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            background: var(--ig-gradient);
+            background: var(--bg-surface);
+            border: 2px solid rgba(255,255,255,0.1);
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             color: white;
             flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
 
         .participant-info {
@@ -459,14 +523,16 @@
 
         .participant-name {
             font-weight: 600;
-            font-size: 0.85rem;
-            color: var(--text);
+            font-size: 0.9rem;
+            color: var(--text-main);
+            letter-spacing: -0.2px;
         }
 
         .participant-chances {
             font-size: 0.75rem;
-            color: var(--ig-purple);
-            font-weight: 500;
+            color: var(--ig-pink);
+            font-weight: 600;
+            margin-left: 6px;
         }
 
         .participant-comment {
@@ -475,49 +541,50 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            margin-top: 2px;
         }
 
         /* ============================================
            DRAW BUTTON
            ============================================ */
-        .draw-section {
-            padding: 8px 0;
-        }
+        .draw-section { padding: 4px 0; }
 
         .draw-btn {
             width: 100%;
-            padding: 16px;
-            font-size: 1rem;
-            font-weight: 700;
+            padding: 18px;
+            font-size: 1.05rem;
+            font-weight: 800;
             color: white;
             background: var(--ig-gradient);
             background-size: 200% 200%;
-            animation: gradientShift 3s ease infinite;
+            animation: gradientShift 4s ease infinite;
             border: none;
-            border-radius: 12px;
+            border-radius: 16px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            letter-spacing: 0.3px;
+            gap: 10px;
+            letter-spacing: 0.5px;
+            box-shadow: var(--glow-ig), inset 0 2px 0 rgba(255,255,255,0.2);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
         }
 
         .draw-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 8px 20px rgba(131, 58, 180, 0.25);
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 12px 24px rgba(225, 48, 108, 0.4), inset 0 2px 0 rgba(255,255,255,0.2);
         }
 
         .draw-btn:active {
-            transform: translateY(0);
+            transform: translateY(1px);
         }
 
         .draw-btn:disabled {
-            opacity: 0.5;
+            opacity: 0.4;
             cursor: not-allowed;
             animation: none;
-            filter: grayscale(0.4);
+            filter: grayscale(0.8);
             transform: none;
             box-shadow: none;
         }
@@ -527,65 +594,72 @@
            ============================================ */
         .roulette {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--bg-dark);
+            inset: 0;
+            background: rgba(5, 5, 5, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             z-index: 1000;
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 32px;
+            gap: 40px;
             padding: 20px;
         }
 
         .roulette.active {
             display: flex;
-            animation: fadeInScale 0.3s ease;
+            animation: fadeInScale 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .roulette-status {
-            font-size: 0.85rem;
-            color: var(--text-muted);
+            font-size: 1rem;
+            color: var(--text-secondary);
             text-transform: uppercase;
-            letter-spacing: 2px;
-            font-weight: 600;
+            letter-spacing: 4px;
+            font-weight: 700;
+            animation: pulseGlow 2s infinite;
+            background: rgba(255,255,255,0.05);
+            padding: 8px 24px;
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
         .roulette-name {
-            font-size: clamp(1.8rem, 7vw, 3.5rem);
+            font-size: clamp(2rem, 8vw, 4.5rem);
             font-weight: 900;
             text-align: center;
             color: white;
-            min-height: 100px;
+            min-height: 140px;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px 40px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 16px;
+            padding: 30px 50px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 24px;
             min-width: 80%;
             word-break: break-word;
             transition: all 0.1s ease;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 0 2px 20px rgba(255,255,255,0.02);
+            text-shadow: 0 4px 12px rgba(0,0,0,0.4);
         }
 
         .roulette-name.active {
             background: var(--ig-gradient);
             background-size: 200% 200%;
             animation: gradientShift 2s ease infinite;
-            color: white;
             border-color: transparent;
+            box-shadow: 0 0 40px rgba(225, 48, 108, 0.4);
         }
 
         .roulette-progress {
-            width: 200px;
-            height: 4px;
+            width: 240px;
+            height: 6px;
             background: rgba(255,255,255,0.1);
-            border-radius: 2px;
+            border-radius: 4px;
             overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
         }
 
         .roulette-progress-bar {
@@ -594,13 +668,15 @@
             background: var(--ig-gradient);
             background-size: 200% 200%;
             animation: gradientShift 2s ease infinite;
-            border-radius: 2px;
+            border-radius: 4px;
             transition: width 0.1s linear;
+            box-shadow: 0 0 10px rgba(225, 48, 108, 0.6);
         }
 
         .roulette-counter {
-            font-size: 0.8rem;
+            font-size: 1rem;
             color: var(--text-muted);
+            font-weight: 500;
         }
 
         /* ============================================
@@ -608,117 +684,104 @@
            ============================================ */
         .winners {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--bg);
+            inset: 0;
+            background: var(--bg-radial);
+            background-color: var(--bg-base);
             z-index: 2000;
             display: none;
             flex-direction: column;
             align-items: center;
-            padding: 32px 20px 20px;
+            padding: 40px 20px;
             overflow-y: auto;
         }
 
         .winners.active {
             display: flex;
-            animation: fadeIn 0.4s ease;
+            animation: fadeInScale 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .winners-header {
             text-align: center;
-            margin-bottom: 24px;
+            margin-bottom: 32px;
         }
 
         .winners-trophy {
-            font-size: 3rem;
-            margin-bottom: 8px;
-            animation: float 3s ease-in-out infinite;
+            font-size: 4rem;
+            margin-bottom: 12px;
+            animation: float 4s ease-in-out infinite;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.4));
         }
 
         .winners-title {
-            font-size: 1rem;
-            color: var(--text-muted);
+            font-size: 1.2rem;
+            color: var(--text-secondary);
             text-transform: uppercase;
-            letter-spacing: 3px;
-            font-weight: 700;
+            letter-spacing: 4px;
+            font-weight: 800;
+            background: linear-gradient(to right, #fff, #a1a1aa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .winners-list {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 16px;
             width: 100%;
-            max-width: 480px;
+            max-width: 520px;
         }
 
         .winner-item {
             display: flex;
             align-items: center;
-            gap: 14px;
-            padding: 16px;
-            background: var(--bg-card);
+            gap: 16px;
+            padding: 20px;
+            background: rgba(18, 18, 20, 0.8);
+            backdrop-filter: blur(12px);
             border: 1px solid var(--border-light);
-            border-radius: 14px;
-            box-shadow: var(--shadow);
-            animation: winnerReveal 0.5s ease forwards;
+            border-radius: 20px;
+            box-shadow: 0 12px 24px rgba(0,0,0,0.3);
+            animation: winnerReveal 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
             animation-delay: var(--delay, 0s);
             opacity: 0;
+            transition: transform 0.3s ease;
         }
+        
+        .winner-item:hover { transform: translateY(-4px) scale(1.02); }
 
         .winner-rank {
-            width: 44px;
-            height: 44px;
+            width: 52px;
+            height: 52px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 900;
-            font-size: 0.95rem;
+            font-size: 1.1rem;
             flex-shrink: 0;
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.3), 0 4px 10px rgba(0,0,0,0.4);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
         }
 
-        .winner-rank.gold {
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            color: white;
-            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
-        }
+        .winner-rank.gold { background: linear-gradient(135deg, #FFD700, #F59E0B); color: white; border: 2px solid #FEF08A; box-shadow: 0 0 20px rgba(251, 191, 36, 0.3); }
+        .winner-rank.silver { background: linear-gradient(135deg, #E4E4E7, #A1A1AA); color: white; border: 2px solid #F4F4F5; }
+        .winner-rank.bronze { background: linear-gradient(135deg, #D97706, #B45309); color: white; border: 2px solid #FCD34D; }
+        .winner-rank.normal { background: var(--bg-surface); color: var(--text-secondary); border: 2px solid var(--border-light); }
 
-        .winner-rank.silver {
-            background: linear-gradient(135deg, #C0C0C0, #A0A0A0);
-            color: white;
-            box-shadow: 0 2px 8px rgba(192, 192, 192, 0.3);
-        }
-
-        .winner-rank.bronze {
-            background: linear-gradient(135deg, #CD7F32, #B87333);
-            color: white;
-            box-shadow: 0 2px 8px rgba(205, 127, 50, 0.3);
-        }
-
-        .winner-rank.normal {
-            background: var(--bg);
-            color: var(--text-muted);
-            border: 2px solid var(--border);
-        }
-
-        .winner-info {
-            flex: 1;
-            min-width: 0;
-        }
+        .winner-info { flex: 1; min-width: 0; }
 
         .winner-name {
-            font-size: 1.05rem;
+            font-size: 1.15rem;
             font-weight: 800;
-            color: var(--text);
+            color: var(--text-main);
             word-break: break-word;
+            letter-spacing: -0.3px;
         }
 
         .winner-comment {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: var(--text-secondary);
-            margin-top: 3px;
+            margin-top: 4px;
             font-style: italic;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -732,18 +795,18 @@
            ============================================ */
         .actions {
             display: flex;
-            gap: 12px;
-            margin-top: 24px;
+            gap: 16px;
+            margin-top: 32px;
             width: 100%;
-            max-width: 480px;
+            max-width: 520px;
         }
 
         .btn {
             flex: 1;
-            padding: 14px 20px;
-            font-size: 0.9rem;
+            padding: 16px 20px;
+            font-size: 0.95rem;
             font-weight: 700;
-            border-radius: 10px;
+            border-radius: 14px;
             border: none;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -753,23 +816,27 @@
         .btn-primary {
             background: var(--ig-gradient);
             background-size: 200% 200%;
-            animation: gradientShift 3s ease infinite;
+            animation: gradientShift 4s ease infinite;
             color: white;
+            box-shadow: var(--glow-ig);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
         }
 
         .btn-primary:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(131, 58, 180, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(225, 48, 108, 0.4);
         }
 
         .btn-secondary {
-            background: white;
-            color: var(--text);
-            border: 1.5px solid var(--border);
+            background: rgba(255,255,255,0.05);
+            color: var(--text-main);
+            border: 1px solid var(--border-light);
+            backdrop-filter: blur(4px);
         }
 
         .btn-secondary:hover {
-            background: var(--bg);
+            background: rgba(255,255,255,0.1);
+            border-color: var(--border-focus);
         }
 
         /* ============================================
@@ -778,23 +845,28 @@
         .footer {
             text-align: center;
             padding: 32px 0 16px;
-            margin-top: 16px;
-            border-top: 1px solid var(--border-light);
+            margin-top: 24px;
+            border-top: 1px solid var(--border-subtle);
         }
 
         .footer-logo {
-            font-size: 1.5rem;
-            margin-bottom: 8px;
+            font-size: 1.8rem;
+            margin-bottom: 12px;
+            filter: grayscale(1) opacity(0.5);
+            transition: all 0.3s ease;
         }
+        
+        .footer:hover .footer-logo { filter: grayscale(0) opacity(1); transform: scale(1.1); }
 
         .footer-text {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: var(--text-muted);
             margin-bottom: 4px;
+            font-weight: 500;
         }
 
         .footer-creator {
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             color: var(--text-secondary);
             font-weight: 600;
         }
@@ -806,7 +878,10 @@
             background-clip: text;
             text-decoration: none;
             font-weight: 800;
+            transition: opacity 0.2s;
         }
+        
+        .footer-creator a:hover { opacity: 0.8; }
 
         /* ============================================
            UTILITIES
@@ -817,26 +892,25 @@
            RESPONSIVE
            ============================================ */
         @media (max-width: 480px) {
-            .container { padding: 0 12px 30px; }
+            .container { padding: 0 16px 30px; }
             .card { padding: 20px; }
             .stats { gap: 8px; }
-            .stat { padding: 12px 4px; }
-            .stat-value { font-size: 1.3rem; }
+            .stat { padding: 16px 4px; }
+            .stat-value { font-size: 1.4rem; }
             .actions { flex-direction: column; }
+            .roulette-name { font-size: 2.5rem; min-height: 120px; padding: 20px 30px; }
         }
     </style>
 <base target="_blank">
 </head>
 <body>
     <div class="container">
-        <!-- HEADER -->
         <header class="header">
             <div class="header-logo">📸</div>
             <h1>Sorteo de Instagram</h1>
             <p>Subí los comentarios y sorteá</p>
         </header>
 
-        <!-- CARD: UPLOAD -->
         <div class="card" id="uploadCard">
             <div class="card-header">
                 <div class="card-icon blue">📁</div>
@@ -857,7 +931,6 @@
             </div>
         </div>
 
-        <!-- CARD: STATS -->
         <div class="card hidden" id="statsCard">
             <div class="card-header">
                 <div class="card-icon green">📊</div>
@@ -897,7 +970,6 @@
             </div>
         </div>
 
-        <!-- CARD: PARTICIPANTS -->
         <div class="card hidden" id="participantsCard">
             <div class="participants-header">
                 <div class="participants-title">👥 Participantes</div>
@@ -906,7 +978,6 @@
             <div class="participants-list" id="participantsList"></div>
         </div>
 
-        <!-- CARD: DRAW -->
         <div class="card hidden" id="drawCard">
             <div class="draw-section">
                 <button class="draw-btn" id="drawButton" disabled>
@@ -916,7 +987,6 @@
             </div>
         </div>
 
-        <!-- FOOTER -->
         <footer class="footer">
             <div class="footer-logo">📸</div>
             <div class="footer-text">Sorteo de Instagram</div>
@@ -926,7 +996,6 @@
         </footer>
     </div>
 
-    <!-- ROULETTE SCREEN -->
     <div class="roulette" id="rouletteScreen">
         <div class="roulette-status">🎲 Sorteando</div>
         <div class="roulette-name" id="rouletteDisplay">Preparando...</div>
@@ -936,7 +1005,6 @@
         <div class="roulette-counter" id="rouletteCounter"></div>
     </div>
 
-    <!-- WINNERS SCREEN -->
     <div class="winners" id="winnersScreen">
         <div class="winners-header">
             <div class="winners-trophy">🏆</div>
@@ -947,9 +1015,9 @@
             <button class="btn btn-primary" id="newDrawBtn">🔄 Nuevo Sorteo</button>
             <button class="btn btn-secondary" id="closeWinnersBtn">✖ Cerrar</button>
         </div>
-        <div style="margin-top: 24px; text-align: center;">
-            <div style="font-size: 0.8rem; color: var(--text-muted);">
-                Creado por <a href="https://instagram.com/tomasanfo" target="_blank" style="background: var(--ig-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-decoration: none; font-weight: 700;">@KeyPower</a>
+        <div style="margin-top: 32px; text-align: center; opacity: 0.7;">
+            <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">
+                Creado por <a href="https://instagram.com/tomasanfo" target="_blank" style="background: var(--ig-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-decoration: none; font-weight: 800;">@KeyPower</a>
             </div>
         </div>
     </div>
@@ -1100,7 +1168,7 @@
                     hash = hash & hash;
                 }
                 const hue = Math.abs(hash % 360);
-                return `hsl(${hue}, 55%, 50%)`;
+                return `hsl(${hue}, 65%, 45%)`; // Ajustado para dark mode
             },
             sleep: (ms) => new Promise(resolve => setTimeout(resolve, ms)),
             random: (min, max) => Math.floor(Math.random() * (max - min + 1)) + min,
@@ -1137,17 +1205,20 @@
 
         DOM.fileLabel.addEventListener('dragover', (e) => {
             e.preventDefault();
-            DOM.fileLabel.style.borderColor = 'var(--blue)';
+            DOM.fileLabel.style.borderColor = 'var(--neon-blue)';
+            DOM.fileLabel.style.background = 'rgba(59, 130, 246, 0.05)';
         });
 
         DOM.fileLabel.addEventListener('dragleave', (e) => {
             e.preventDefault();
             DOM.fileLabel.style.borderColor = '';
+            DOM.fileLabel.style.background = '';
         });
 
         DOM.fileLabel.addEventListener('drop', (e) => {
             e.preventDefault();
             DOM.fileLabel.style.borderColor = '';
+            DOM.fileLabel.style.background = '';
             const files = e.dataTransfer.files;
             if (files.length > 0) {
                 DOM.fileInput.files = files;
@@ -1161,7 +1232,7 @@
 
             DOM.fileLabel.classList.add('has-file');
             DOM.fileLabel.querySelector('.file-label-text').innerHTML = 
-                `<strong>✅ ${file.name}</strong>Archivo cargado`;
+                `<strong>✅ ${file.name}</strong>Archivo cargado listo para la magia`;
 
             try {
                 const text = await file.text();
@@ -1306,7 +1377,7 @@
 
             DOM.rouletteScreen.classList.add('active');
             DOM.rouletteDisplay.textContent = 'Preparando...';
-            DOM.rouletteCounter.innerHTML = `Sorteando <span style="color:#e1306c;font-weight:700">${winnerCount}</span> ganador${winnerCount > 1 ? 'es' : ''}`;
+            DOM.rouletteCounter.innerHTML = `Sorteando <span style="color:#f472b6;font-weight:700">${winnerCount}</span> ganador${winnerCount > 1 ? 'es' : ''}`;
 
             // Precalentamiento con ticks
             const warmupStart = Date.now();
@@ -1417,7 +1488,7 @@
         }
 
         function launchConfetti() {
-            const colors = ['#833AB4', '#C13584', '#E1306C', '#F77737', '#FCAF45', '#0095F6'];
+            const colors = ['#833AB4', '#C13584', '#E1306C', '#F77737', '#FCAF45', '#3B82F6'];
             confetti({ particleCount: 120, spread: 100, origin: { y: 0.6 }, colors, startVelocity: 55 });
 
             const end = Date.now() + 4000;
@@ -1457,8 +1528,8 @@
         // ============================================
         generateWinnerButtons();
 
-        console.log('%c📸 Sorteo de Instagram', 'color: #833AB4; font-size: 16px; font-weight: 800;');
-        console.log('%cCreado por @KeyPower', 'color: #737373; font-size: 11px;');
+        console.log('%c📸 Sorteo de Instagram - Dark Mode', 'color: #bc1888; font-size: 16px; font-weight: 800;');
+        console.log('%cCreado por @KeyPower', 'color: #a1a1aa; font-size: 11px;');
     </script>
 </body>
 </html>
